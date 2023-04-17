@@ -50,8 +50,10 @@ class CornMoistDB:
         cursor.execute(query)
         self.connection.commit()
 
-    def insert_into_table(self, table_name, columns, values):
+    def insert_into_table(self, table_name, columns=None, values=None):
         cursor = self.connection.cursor()
+        if columns is None:
+            columns = ['id', 'insLot', 'material', 'batch', 'plant', 'count', 'min_value', 'max_value', 'mean_value', 'stddev_value']
         columns_string = ', '.join(columns)
         values_string = ', '.join(f"'{value}'" for value in values)
         cursor.execute(f'INSERT INTO {table_name} ({columns_string}) VALUES ({values_string})')

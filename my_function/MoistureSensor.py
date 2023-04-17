@@ -3,6 +3,7 @@ import time
 import statistics
 import plotly.express as px
 import plotly.io as pio
+import numpy as np
 
 class MoistureSensor:
     def __init__(self, host='192.168.200.100', port=502, address=400, num_registers=10):
@@ -22,22 +23,72 @@ class MoistureSensor:
         moisture_percentage = []
         for value in filtered_data:
             if value <= 800:
-                k = 0.01
-            elif 800 < value <= 1200:
-                k = 0.02
-            elif 1201 < value <= 1300:
-                k = 0.03
-            elif 1301 < value <= 1400:
-                k = 0.03
-            elif 1401 < value <= 1600:
-                k = 0.04
+                k = 1.16
+            elif 800 < value <= 1492:
+                k = 1.16
+            elif 1493 < value <= 1610:
+                k = 1.106
+            elif 1611 < value <= 1693:
+                k = 1.152
+            elif 1694 < value <= 1777:
+                k = 1.05
             else:
-                k = 0.05
-            moisture_percentage.append(value * k)
+                k = 1.05
+            moisture_percentage.append(value / k)
         return moisture_percentage
     
-    def calculate_stats(self):
-        data = self.calculate_moisture_percentage()
+    def find_best_threshold(self,moisture_percentage):
+        # Compute the histogram of the data
+        hist, bins = np.histogram(moisture_percentage, bins=50)
+        
+        # Compute the cumulative sum of the histogram
+        cumsum = np.cumsum(hist)
+        
+        # Compute the ratios of the cumulative sum to the total number of data points
+        ratios = cumsum / len(moisture_percentage)
+        
+        # Find the index of the first ratio greater than or equal to 0.1 and the last ratio less than or equal to 0.9
+        start_index = np.argmax(ratios >= 0.1)
+        end_index = len(ratios) - 1 - np.argmax(np.flip(ratios) <= 0.9)
+        
+        # Compute the mean of the data points in the range [bins[start_index], bins[end_index]]
+        mean = np.mean([value for value in moisture_percentage if bins[start_index] <= value <= bins[end_index]])
+        
+        # Compute the threshold as the mean of the data points in the range [bins[start_index], bins[end_index]]
+        threshold = mean
+        
+        return threshold
+    
+    def select_similar_range(self,moisture_percentage, threshold):
+        # Compute the difference between adjacent elements in the array
+        diff = np.diff(moisture_percentage)
+        
+        # Find the indices where the difference is less than or equal to the threshold
+        indices = np.where(diff <= threshold)[0]
+        
+        # Check if the first and last indices are adjacent
+        if len(indices) > 0 and indices[0] == 0:
+            indices = indices[1:]
+        if len(indices) > 0 and indices[-1] == len(moisture_percentage) - 2:
+            indices = indices[:-1]
+        
+        # Select the ranges of indices where the difference is less than or equal to the threshold
+        ranges = []
+        for i in range(len(indices)):
+            if i == 0:
+                ranges.append((0, indices[i] + 1))
+            elif i == len(indices) - 1:
+                ranges.append((indices[i], len(moisture_percentage)))
+            else:
+                ranges.append((indices[i], indices[i+1] + 1))
+        
+        # Select the subarrays corresponding to the ranges of indices
+        result = [moisture_percentage[start:end] for start, end in ranges]
+        
+        return result
+    
+    def calculate_stats(self,moisture_range_homo):
+        data = moisture_range_homo.copy()
         count = len(data)
         min_value = min(data)
         max_value = max(data)
@@ -48,7 +99,6 @@ class MoistureSensor:
     def plot_moisture_percentage(self, moisture_percentages):
         fig = px.line(x=list(range(len(moisture_percentages))), y=moisture_percentages, title="Moisture Percentage", markers=True)
         return fig
-          
 
 # if __name__ == "__main__":
 #     sensor = MoistureSensor()

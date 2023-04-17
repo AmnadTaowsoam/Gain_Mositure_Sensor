@@ -22,7 +22,6 @@ def login():
     if request.method == 'POST':
         email = request.form['user_email']
         password = request.form['user_password']
-        plant = request.form['plant']
         # Perform login logic here (e.g., check credentials against a database)
         condition = f"email='{email}' AND password='{password}'"
         user = db.select_data('users', condition=condition)
@@ -77,11 +76,13 @@ def index():
                 filtered_data = [value for value in data if value > 800]
                 moisture_percentage = sensor.calculate_moisture_percentage(filtered_data)
                 moisture_percentages.extend(moisture_percentage)
+                best_threshold = sensor.find_best_threshold(moisture_percentage)
+                moisture_range_homo = sensor.select_similar_range(moisture_percentage, best_threshold)
             time.sleep(1)
 
         fig = sensor.plot_moisture_percentage(moisture_percentages)
         plot_html = pio.to_html(fig, full_html=False)
-        stats = sensor.calculate_stats()
+        stats = sensor.calculate_stats(moisture_range_homo)
         
         # Insert MoistureRecord into database
         values = [
