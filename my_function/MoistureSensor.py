@@ -6,7 +6,7 @@ import plotly.io as pio
 import numpy as np
 
 class MoistureSensor:
-    def __init__(self, host='192.168.200.100', port=502, address=400, num_registers=10):
+    def __init__(self, host='192.168.200.100', port=502, address=403, num_registers=10):
         self.host = host
         self.port = port
         self.address = address
@@ -23,7 +23,7 @@ class MoistureSensor:
         moisture_percentage = []
         for value in filtered_data:
             if value <= 800:
-                k = 1.16
+                k = 100
             elif 800 < value <= 1492:
                 k = 1.16
             elif 1493 < value <= 1610:
@@ -34,7 +34,7 @@ class MoistureSensor:
                 k = 1.05
             else:
                 k = 1.05
-            moisture_percentage.append(value / k)
+            moisture_percentage.append((value / k)/100)
         return moisture_percentage
     
     def find_best_threshold(self,moisture_percentage):
@@ -90,10 +90,16 @@ class MoistureSensor:
     def calculate_stats(self,moisture_range_homo):
         data = moisture_range_homo.copy()
         count = len(data)
-        min_value = min(data)
-        max_value = max(data)
-        mean_value = statistics.mean(data)
-        stddev_value = statistics.stdev(data)
+        if len(data) > 0:
+            min_value = round(min(data),2)
+            max_value = round(max(data),2)
+            mean_value = round(statistics.mean(data),2)
+            stddev_value = round(statistics.stdev(data),2)
+        else:
+            min_value = None
+            max_value = None
+            mean_value = None
+            stddev_value = None
         return count, min_value, max_value, mean_value, stddev_value
         
     def plot_moisture_percentage(self, moisture_percentages):

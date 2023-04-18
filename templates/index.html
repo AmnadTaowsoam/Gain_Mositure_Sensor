@@ -9,36 +9,54 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .footer {
+        vertical-align: center;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 5%;
+        /* background-color:#088F8F; */
+        color: white;
+        text-align: center;
+        }
+        </style>
+
+
 </head>
 
 <body>
     <section> 
         <!-- Nav bar -->
-        <header class="p-2 mb-2 border-bottom">
-            <div class="container-fluid">
-            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start ">
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                <img src="/static/image/logo.png" alt="" width="70">
-                </a>
+        <nav>
+            <header class="p-2 mb-2 border-bottom">
+                <div class="container-fluid">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start ">
+                    <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+                    <img src="/static/image/logo.png" alt="" width="70">
+                    </a>
 
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                </ul>
-                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-                <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-                </form>
+                    <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    </ul>
+                    <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                    <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+                    </form>
 
-                <div class="dropdown text-end">
-                <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="/static/image/User_icon_2.png" alt="" width="32" height="32" class="rounded-circle">{{g.user}}
-                </a>
-                <ul class="dropdown-menu text-small">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a href="/logout" class="dropdown-item" href="#">Sign out</a></li>
-                </ul>
+                    <div class="dropdown text-end">
+                    <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="/static/image/User_icon_2.png" alt="" width="32" height="32" class="rounded-circle">{{g.user}}
+                    </a>
+                    <ul class="dropdown-menu text-small">
+                        <!-- <li><a class="dropdown-item" href="#">Profile</a></li> -->
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a href="/logout" class="dropdown-item" href="#">Sign out</a></li>
+                    </ul>
+                    </div>
                 </div>
-            </div>
-            </div>
+                </div>
+        </nav>
         </header>
         <!-- Nav bar2 -->
         <header class="py-2 mb-3 border-bottom">
@@ -49,60 +67,63 @@
         <!-- End Nav bar2 -->
         <!-- End nev bar -->
     </section>
-     
+    
     <section>
         <!-- <h1>Moisture Sensor Data</h1> -->
         <!-- Display data read from moisture sensor -->
         <div class="container-fluid text-left">
             <div class = "row">
-                <div class = "col-8 text-center">
+                <div class = "col-9 text-center">
                     {% if plot_html %}
                     {{ plot_html | safe }}
                     {% endif %}
                     {% if stats %}
-                    <p>Count: {{ stats[0] }}</p>
-                    <p>Min: {{ stats[1] }}</p>
-                    <p>Max: {{ stats[2] }}</p>
-                    <p>Mean: {{ stats[3] }}</p>
-                    <p>Standard Deviation: {{ stats[4] }}</p>
+                    <div style="font-size: 16px; color: navy; padding: 10px; margin-bottom: 20px;">
+                    <p><strong>จำนวนค่าความชื้น(N):</strong> {{ stats[0] }} %</p>
+                    <p><strong>ค่าความชื้นต่ำสุด(Min):</strong> {{ stats[1] }} %</p>
+                    <p><strong>ค่าความชื้นสูงสุด(Max):</strong> {{ stats[2] }} %</p>
+                    <p><strong>ค่าความชื้นเฉลี่ย(Average):</strong> {{ stats[3] }} %</p>
+                    <p><strong>ค่าความชื้นเบี่ยงเบน(Standard Deviation):</strong> {{ stats[4] }} %</p>
+                    </div>
+                    
                     {% endif %}
                     </div>
                 <!-- End display data read from moisture sensor -->
                 <!-- input -->
-                <div class = "col-4 text-left">
+                <div class = "col-3 text-left">
                     <form method="post" action="/">
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="inspection_lot">inspection_lot</span>
-                            <input type="text" id="inspection_lot" name="inspection_lot">
+                            <input type="text" id="inspection_lot" name="inspection_lot" style="width:70%;">
                             </div><br>
 
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="material">Material</span>
-                            <input type="text" id="material" name="material">
+                            <input type="text" id="material" name="material" style="width:75%;">
                             </div><br>
                         
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="batch">batch</span>
-                            <input type="text" id="batch" name="batch">
+                            <input type="text" id="batch" name="batch" style="width:75%;">
                             </div><br>
                             
-                        <div class="input-group mb-3"> 
+                        <div class="input-group mb-3" > 
                             <span class="input-group-text" id="plant">Plant</span>
-                            <select name="plant" id="plant" class="form-control">
-                                <option value="">Select Plant:</option>
-                                <option value="A001">BTG-LR1</option>
-                                <option value="A002">BTG-LR2</option>
-                                <option value="A003">BTG-LR3</option>
-                                <option value="A004">BTG-LR4</option>
-                                <option value="A005">BTG-PC</option>
-                                <option value="A006">BTG-PD</option>
-                                <option value="A007">BTG-NT</option>
-                                <option value="A008">BTG-LP</option>
-                                <option value="A009">BTG-SK</option>
-                                <option value="A011">BTG-NM</option>
-                                <option value="A012">BTG-CC</option>
-                                <option value="QAQS-QI">QI</option>
-                                </select>
+                                <select name="plant" id="plant" class="form-control">
+                                    <option value="">Select Plant:</option>
+                                    <option value="A001">BTG-LR1</option>
+                                    <option value="A002">BTG-LR2</option>
+                                    <option value="A003">BTG-LR3</option>
+                                    <option value="A004">BTG-LR4</option>
+                                    <option value="A005">BTG-PC</option>
+                                    <option value="A006">BTG-PD</option>
+                                    <option value="A007">BTG-NT</option>
+                                    <option value="A008">BTG-LP</option>
+                                    <option value="A009">BTG-SK</option>
+                                    <option value="A011">BTG-NM</option>
+                                    <option value="A012">BTG-CC</option>
+                                    <option value="QAQS-QI">QI</option>
+                                    </select>
                             </div><br>
                         <button class="btn btn-primary" type="submit" value="Submit">Submit</button>
                     </form>
@@ -116,8 +137,8 @@
 
     <!-- Footer -->
     <section>
-        <footer>
-            <p class="text-center text-body-secondary">© Copyright 2023 QUALITY INNOVATION(QI) - SMART QUALITY</p>
+        <footer class="footer">
+            <p class="text-center text-body-secondary" > <strong>© Copyright 2023 QUALITY INNOVATION(QI) - SMART QUALITY</strong></p>
         </footer>
     </section>
     <!-- End Footer -->

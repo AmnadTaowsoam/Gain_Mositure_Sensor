@@ -3,6 +3,7 @@ from my_function.MoistureSensor import MoistureSensor
 import plotly.io as pio
 import time
 from my_db.CornMoistDB import CornMoistDB
+import csv
 
 app = Flask(__name__)
 app.secret_key = 'my_secret_key'  # Replace with your own secret key
@@ -12,7 +13,7 @@ db = CornMoistDB()
 @app.before_request
 def before_request():
     try:
-        user = session['username']
+        user = session['user_name']
         g.user = user
     except:
         print("session error")
@@ -70,19 +71,20 @@ def index():
         sensor = MoistureSensor()
         moisture_percentages = []
         
-        for i in range(10):
+        for i in range(50):
             data = sensor.read_data()
             if data:
-                filtered_data = [value for value in data if value > 800]
+                filtered_data = [value for value in data if value > 1102]
                 moisture_percentage = sensor.calculate_moisture_percentage(filtered_data)
                 moisture_percentages.extend(moisture_percentage)
-                best_threshold = sensor.find_best_threshold(moisture_percentage)
-                moisture_range_homo = sensor.select_similar_range(moisture_percentage, best_threshold)
             time.sleep(1)
-
+            
+        best_threshold = sensor.find_best_threshold(moisture_percentages)
+        moisture_range_homo = sensor.select_similar_range(moisture_percentages, best_threshold)
+        moisture_range_homo_flat = [item for sublist in moisture_range_homo for item in sublist]
         fig = sensor.plot_moisture_percentage(moisture_percentages)
         plot_html = pio.to_html(fig, full_html=False)
-        stats = sensor.calculate_stats(moisture_range_homo)
+        stats = sensor.calculate_stats(moisture_range_homo_flat)
         
         # Insert MoistureRecord into database
         values = [
@@ -91,13 +93,12 @@ def index():
             batch,
             plant,
             stats[0],
-            stats[1],
-            stats[2],
-            stats[3],
-            stats[4]
+            round(stats[1],2),
+            round(stats[2],2),
+            round(stats[3],2),
+            round(stats[4],2)
         ]
         db.insert_into_table('MoistureRecord', values=values)
-
         return render_template('index.html', plot_html=plot_html, stats=stats)
 
     return render_template('index.html')
